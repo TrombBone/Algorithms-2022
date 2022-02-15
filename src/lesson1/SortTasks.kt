@@ -2,6 +2,8 @@
 
 package lesson1
 
+import java.io.File
+
 /**
  * Сортировка времён
  *
@@ -97,7 +99,14 @@ fun sortAddresses(inputName: String, outputName: String) {
  * 121.3
  */
 fun sortTemperatures(inputName: String, outputName: String) {
-    TODO()
+    val temps = File(inputName).readLines().map { it.toDouble() }.toMutableList()
+    temps.sort()
+    File(outputName).bufferedWriter().use { bf ->
+        for (element in temps) {
+            bf.write(element.toString())
+            bf.newLine()
+        }
+    }
 }
 
 /**
@@ -130,7 +139,29 @@ fun sortTemperatures(inputName: String, outputName: String) {
  * 2
  */
 fun sortSequence(inputName: String, outputName: String) {
-    TODO()
+    File(outputName).bufferedWriter().use { bf ->
+        val lines = File(inputName).readLines()
+        if (lines.isEmpty()) return
+        val numbers = mutableListOf<Int>()
+        val countNumbers = mutableMapOf<Int, Int>()
+
+        for (line in lines) {
+            val thisNum = line.toInt()
+            numbers.add(thisNum)
+            countNumbers[thisNum] = countNumbers[thisNum]?.plus(1) ?: 1
+        }
+        val recurringNumCount = countNumbers.maxOf { it.value }
+        val allRecurring = mutableListOf<Int>()
+        for ((key, value) in countNumbers) if (value == recurringNumCount) allRecurring.add(key)
+        val minRecurringNum = allRecurring.minOrNull()
+        numbers.removeAll(setOf(minRecurringNum))
+        for (i in 0 until recurringNumCount) numbers.add(minRecurringNum!!)
+
+        for (num in numbers) {
+            bf.write(num.toString())
+            bf.newLine()
+        }
+    }
 }
 
 /**
