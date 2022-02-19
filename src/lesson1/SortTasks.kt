@@ -98,11 +98,12 @@ fun sortAddresses(inputName: String, outputName: String) {
  * 99.5
  * 121.3
  */
+//общая трудоёмкость O(N)
 fun sortTemperatures(inputName: String, outputName: String) {
-    val temps = File(inputName).readLines().map { it.toDouble() }.toMutableList()
-    temps.sort()
+    val temps = File(inputName).readLines().map { it.toDouble() }.toMutableList() //трудоёмкость map {} O(N)
+    temps.sort() //трудоёмкость sort() O(N) (используется mergeSort)
     File(outputName).bufferedWriter().use { bf ->
-        for (element in temps) {
+        for (element in temps) { //трудоёмкость O(N)
             bf.write(element.toString())
             bf.newLine()
         }
@@ -138,6 +139,7 @@ fun sortTemperatures(inputName: String, outputName: String) {
  * 2
  * 2
  */
+//общая трудоёмкость O(N)
 fun sortSequence(inputName: String, outputName: String) {
     File(outputName).bufferedWriter().use { bf ->
         val lines = File(inputName).readLines()
@@ -145,19 +147,19 @@ fun sortSequence(inputName: String, outputName: String) {
         val numbers = mutableListOf<Int>()
         val countNumbers = mutableMapOf<Int, Int>()
 
-        for (line in lines) {
+        for (line in lines) { //трудоёмкость O(N)
             val thisNum = line.toInt()
             numbers.add(thisNum)
             countNumbers[thisNum] = countNumbers[thisNum]?.plus(1) ?: 1
         }
-        val recurringNumCount = countNumbers.maxOf { it.value }
+        val recurringNumCount = countNumbers.maxOf { it.value } //трудоёмкость maxOf() O(N)
         val allRecurring = mutableListOf<Int>()
-        for ((key, value) in countNumbers) if (value == recurringNumCount) allRecurring.add(key)
-        val minRecurringNum = allRecurring.minOrNull()
+        for ((key, value) in countNumbers) if (value == recurringNumCount) allRecurring.add(key) //трудоёмкость O(N)
+        val minRecurringNum = allRecurring.minOrNull() //трудоёмкость minOrNull() O(N)
         numbers.removeAll(setOf(minRecurringNum))
-        for (i in 0 until recurringNumCount) numbers.add(minRecurringNum!!)
+        for (i in 0 until recurringNumCount) numbers.add(minRecurringNum!!) //трудоёмкость O(N)
 
-        for (num in numbers) {
+        for (num in numbers) { //трудоёмкость O(N)
             bf.write(num.toString())
             bf.newLine()
         }
