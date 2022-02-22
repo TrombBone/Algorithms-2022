@@ -319,13 +319,13 @@ abstract class AbstractTaskTests : AbstractFileTests() {
                 "temp.txt",
                 """
                         1
-                        2
-                        3
-                        3
-                        2
                         1
-                        0
-                        0
+                        1
+                        1
+                        1
+                        1
+                        1
+                        1
                     """.trimIndent()
             )
         } finally {

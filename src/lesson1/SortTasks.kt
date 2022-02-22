@@ -97,8 +97,10 @@ fun sortAddresses(inputName: String, outputName: String) {
  * 24.7
  * 99.5
  * 121.3
+ *
+ * T = O(N), так как в .sort используется mergeSort, имеющая сложность O(N)
+ * R = O(N), так как создаётся один ассоциативный массив длинной N, где N - количество температур
  */
-//общая трудоёмкость O(N)
 fun sortTemperatures(inputName: String, outputName: String) {
     val temps = File(inputName).readLines().map { it.toDouble() }.toMutableList() //трудоёмкость map {} O(N)
     temps.sort() //трудоёмкость sort() O(N) (используется mergeSort)
@@ -138,8 +140,15 @@ fun sortTemperatures(inputName: String, outputName: String) {
  * 2
  * 2
  * 2
+ *
+ * T = O(2*N) = O(N), так как проходимся по всем числам последовательности несколько раз, но один раз за цикл
+ *
+ * R = O(2*N + M) = O(N), где
+ * N - это количество чисел в последовательности, а x2, так как ещё есть map,
+ * M - это количество повторяющихся чисел
+ *
+ * (мог ошибиться в определении R)
  */
-//общая трудоёмкость O(N)
 fun sortSequence(inputName: String, outputName: String) {
     File(outputName).bufferedWriter().use { bf ->
         val lines = File(inputName).readLines()
@@ -147,19 +156,19 @@ fun sortSequence(inputName: String, outputName: String) {
         val numbers = mutableListOf<Int>()
         val countNumbers = mutableMapOf<Int, Int>()
 
-        for (line in lines) { //трудоёмкость O(N)
+        for (line in lines) {
             val thisNum = line.toInt()
             numbers.add(thisNum)
             countNumbers[thisNum] = countNumbers[thisNum]?.plus(1) ?: 1
         }
         val recurringNumCount = countNumbers.maxOf { it.value } //трудоёмкость maxOf() O(N)
         val allRecurring = mutableListOf<Int>()
-        for ((key, value) in countNumbers) if (value == recurringNumCount) allRecurring.add(key) //трудоёмкость O(N)
+        for ((key, value) in countNumbers) if (value == recurringNumCount) allRecurring.add(key)
         val minRecurringNum = allRecurring.minOrNull() //трудоёмкость minOrNull() O(N)
         numbers.removeAll(setOf(minRecurringNum))
-        for (i in 0 until recurringNumCount) numbers.add(minRecurringNum!!) //трудоёмкость O(N)
+        for (i in 0 until recurringNumCount) numbers.add(minRecurringNum!!)
 
-        for (num in numbers) { //трудоёмкость O(N)
+        for (num in numbers) {
             bf.write(num.toString())
             bf.newLine()
         }
