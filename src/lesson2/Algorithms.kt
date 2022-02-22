@@ -93,21 +93,34 @@ fun josephTask(menNumber: Int, choiceInterval: Int): Int {
  * При сравнении подстрок, регистр символов *имеет* значение.
  * Если имеется несколько самых длинных общих подстрок одной длины,
  * вернуть ту из них, которая встречается раньше в строке first.
+ *
+ * T = O(M*N), где M и N длины двух строк
+ * R = O(M*N + 2 + 6) = O(M*N), где
+ *      M*N - это двумерный массив размерами M*N,
+ *      2 - это переменные maxLen и maxi
+ *      6 - это переменные, созданные в циклах (возможно там должно быть меньше (вроде 2),
+ *      ведь в разных циклах одни и те же переменные, хочу, чтобы рассказали, как на самом деле)
  */
 fun longestCommonSubstring(first: String, second: String): String {
-    val tableSubs = Array(first.length) { IntArray(second.length) }
-    for (i in first.indices) if (first[i] == second[0]) tableSubs[i][0] = 1
-    for (i in second.indices) if (second[i] == first[0]) tableSubs[0][i] = 1
+    val tableSubLen = Array(first.length) { IntArray(second.length) }
+    for (i in first.indices) if (first[i] == second[0]) tableSubLen[i][0] = 1
+    for (i in second.indices) if (second[i] == first[0]) tableSubLen[0][i] = 1
     for (i in 1 until first.length) for (j in 1 until second.length)
-        if (first[i] == second[j]) tableSubs[i][j] = tableSubs[i - 1][j - 1] + 1
+        if (first[i] == second[j]) tableSubLen[i][j] = tableSubLen[i - 1][j - 1] + 1
 
-    for (i in tableSubs) {
-        for (j in i) print("$j ")
-        println()
+    var maxLen = 0//tableSubs.maxOf { it.maxOrNull()!! }
+    var maxi = -1
+    for (i in first.indices) {
+        for (j in second.indices) {
+            if (tableSubLen[i][j] > maxLen) {
+                maxi = i
+                maxLen = tableSubLen[i][j]
+            }
+        }
     }
-    val maxLen = tableSubs.maxOf { it.maxOrNull()!! }
-    println(maxLen)
-    return ""
+    return if (maxi != -1) {
+        first.substring(maxi - maxLen + 1, maxi + 1)
+    } else ""
 }
 
 /**
@@ -119,7 +132,26 @@ fun longestCommonSubstring(first: String, second: String): String {
  *
  * Справка: простым считается число, которое делится нацело только на 1 и на себя.
  * Единица простым числом не считается.
+ *
+ * T = O(N*M)
+ * R = O(N*M), где
+ * N - это limit, а M - количество простых числе в limit
+ * (возможно я ошибаюсь про M, хочу уточнения)
  */
 fun calcPrimesNumber(limit: Int): Int {
-    TODO()
+    val primes = mutableListOf<Int>()
+    if (limit <= 1) return 0
+    val allNumbers = IntArray(limit - 1)
+
+    for (i in 0..limit - 2) {
+        if (allNumbers[i] == 0) {
+            allNumbers[i] = i + 2
+            primes.add(i + 2)
+        }
+        for (p in primes) {
+            if (p > allNumbers[i] || p * (i + 2) > limit) break
+            allNumbers[p * (i + 2) - 2] = p
+        }
+    }
+    return primes.size
 }
