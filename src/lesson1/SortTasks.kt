@@ -98,12 +98,12 @@ fun sortAddresses(inputName: String, outputName: String) {
  * 99.5
  * 121.3
  *
- * T = O(N), так как в .sort используется mergeSort, имеющая сложность O(N)
+ * T = O(N*log(N)), так как в .sort используется mergeSort, имеющая сложность O(N)
  * R = O(N), так как создаётся один ассоциативный массив длинной N, где N - количество температур
  */
 fun sortTemperatures(inputName: String, outputName: String) {
     val temps = File(inputName).readLines().map { it.toDouble() }.toMutableList() //трудоёмкость map {} O(N)
-    temps.sort() //трудоёмкость sort() O(N) (используется mergeSort)
+    temps.sort() //трудоёмкость sort() O(N*log(N)) (используется mergeSort)
     File(outputName).bufferedWriter().use { bf ->
         for (element in temps) { //трудоёмкость O(N)
             bf.write(element.toString())
