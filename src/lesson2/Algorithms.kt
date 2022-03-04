@@ -133,10 +133,9 @@ fun longestCommonSubstring(first: String, second: String): String {
  * Справка: простым считается число, которое делится нацело только на 1 и на себя.
  * Единица простым числом не считается.
  *
- * T = O(N*M)
- * R = O(N*M), где
+ * T = O(N), т.к. суммарная итерация циклов N
+ * R = O(N+M), где
  * N - это limit, а M - количество простых числе в limit
- * (возможно я ошибаюсь про M, хочу уточнения)
  */
 fun calcPrimesNumber(limit: Int): Int {
     val primes = mutableListOf<Int>()
