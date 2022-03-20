@@ -2,6 +2,8 @@
 
 package lesson2
 
+import java.util.BitSet
+
 /**
  * Получение наибольшей прибыли (она же -- поиск максимального подмассива)
  * Простая
@@ -133,24 +135,22 @@ fun longestCommonSubstring(first: String, second: String): String {
  * Справка: простым считается число, которое делится нацело только на 1 и на себя.
  * Единица простым числом не считается.
  *
- * T = O(N), т.к. суммарная итерация циклов N
- * R = O(N+M), где
- * N - это limit, а M - количество простых числе в limit
+ * T = O(N*log(log(N)))
+ * R = O(N)
  */
 fun calcPrimesNumber(limit: Int): Int {
-    val primes = mutableListOf<Int>()
     if (limit <= 1) return 0
-    val allNumbers = IntArray(limit - 1)
+    val allNumbers = BitSet(limit - 1)
+    for (i in 0 until limit - 1) allNumbers[i] = true
 
-    for (i in 0..limit - 2) {
-        if (allNumbers[i] == 0) {
-            allNumbers[i] = i + 2
-            primes.add(i + 2)
-        }
-        for (p in primes) {
-            if (p > allNumbers[i] || p * (i + 2) > limit) break
-            allNumbers[p * (i + 2) - 2] = p
-        }
+    var i = 2
+    while (i * i <= limit) {
+        if (allNumbers[i - 2]) for (j in i * i..limit step i) allNumbers[j - 2] = false
+        i++
     }
-    return primes.size
+
+    var count = 0
+    for (j in 0 until limit) if (allNumbers[j]) count++
+
+    return count
 }
