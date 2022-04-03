@@ -34,7 +34,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      * Возвращает родителя искомого элемента
      * Для root вернёт root
      *
-     * T = O(log(N))
+     * T = O(h)
      * R = O(1)
      */
     private fun findWithParent(start: Node<T> = root!!, parent: Node<T> = start, value: T): Node<T> {
@@ -95,7 +95,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      *
      * Средняя
      *
-     * T = O(log(N))
+     * T = O(h)
      * R = O(1)
      */
     override fun remove(element: T): Boolean {
@@ -138,7 +138,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         return true
     }
 
-    //T = O(1)
+    //T = O(N), где N - это количество левых потомков
     //R = O(1)
     private fun findMinNode(startNode: Node<T>): Node<T> =
         if (startNode.left == null) startNode else findMinNode(startNode.left!!)
@@ -154,6 +154,29 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         private lateinit var thisNode: Node<T>
         private lateinit var prevNode: Node<T>
         private var isRemoveWasCall = false
+        private val stack = Stack<Node<T>>()
+
+        init {
+            fillStack()
+        }
+
+        private fun fillStack() {
+            var thisNode = root
+            if (thisNode != null) {
+                stack.push(thisNode)
+                while (thisNode!!.left != null) {
+                    stack.push(thisNode.left)
+                    thisNode = thisNode.left
+                }
+            }
+        }
+
+        //T = O(N), где N - это количество левых потомков
+        //R = O(1)
+        private fun findMinNodeWithStack(startNode: Node<T>): Node<T> {
+            stack.push(startNode)
+            return if (startNode.left == null) startNode else findMinNodeWithStack(startNode.left!!)
+        }
 
         /**
          * Проверка наличия следующего элемента
@@ -183,7 +206,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          *
          * Средняя
          *
-         * T = O(log(N))
+         * T = O(N)
          * R = O(1)
          */
         override fun next(): T {
@@ -192,21 +215,21 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
             isRemoveWasCall = false
             //first call
             if (index == 0) {
-                thisNode = find(first()) ?: throw NoSuchElementException()
+                thisNode = stack.last()
                 prevNode = thisNode
-                return thisNode.value
+                return stack.pop().value
             }
             //go to right
             if (thisNode.right != null) {
                 prevNode = thisNode
-                thisNode = findMinNode(thisNode.right!!)
-                return thisNode.value
+                thisNode = findMinNodeWithStack(thisNode.right!!)
+                return stack.pop().value
             }
             //if thisNode is last element
-            if (prevNode.right == thisNode) throw NoSuchElementException()
+            if (stack.isEmpty()) throw NoSuchElementException()
             //go to parent if parent.left == thisNode
             prevNode = thisNode
-            thisNode = findWithParent(value = thisNode.value)
+            thisNode = stack.pop()
             return thisNode.value
         }
 
@@ -228,6 +251,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         override fun remove() {
             if (index < 0 || isRemoveWasCall) throw IllegalStateException()
             isRemoveWasCall = true
+            thisNode.right?.let { stack.push(findMinNodeWithStack(it)) }
             remove(thisNode.value)
             if (prevNode != thisNode) thisNode = prevNode
             index--
