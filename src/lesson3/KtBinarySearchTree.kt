@@ -95,7 +95,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      *
      * Средняя
      *
-     * T = O(h)
+     * T = O(h), где h - высота дерева
      * R = O(1)
      */
     override fun remove(element: T): Boolean {
@@ -206,7 +206,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          *
          * Средняя
          *
-         * T = O(N)
+         * T = O(1)
          * R = O(1)
          */
         override fun next(): T {
