@@ -70,8 +70,43 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
      *
      * Сложная
      */
-    override fun iterator(): MutableIterator<String> {
-        TODO()
-    }
+    override fun iterator(): MutableIterator<String> = KtTrieIterator()
 
+    inner class KtTrieIterator : MutableIterator<String> {
+        private var thisWord: String? = null
+        private val stack = Stack<String>()
+
+        init {
+            fillStack(root, "")
+        }
+
+        private fun fillStack(thisNode: Node, word: String) {
+            for (child in thisNode.children)
+                if (child.key != 0.toChar()) fillStack(child.value, word + child.key)
+                else stack.add(word)
+        }
+
+        //T = O(1)
+        //R = O(1)
+        override fun hasNext(): Boolean = !stack.isEmpty()
+
+        //T = O(1)
+        //R = O(1)
+        override fun next(): String {
+            if (hasNext()) {
+                thisWord = stack.pop()
+                return thisWord!!
+            } else throw NoSuchElementException()
+        }
+
+        //T = O(N),
+        //R = O(N),
+        //где N - длина удаляемого слова
+        override fun remove() {
+            if (thisWord != null) {
+                remove(thisWord)
+                thisWord = null
+            } else throw IllegalStateException()
+        }
+    }
 }
