@@ -51,7 +51,7 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
         val startingIndex = element.startingIndex()
         var index = startingIndex
         var current = storage[index]
-        while (current != null) {
+        while (current != null && current !is NullNotNull) {
             if (current == element) {
                 return false
             }
@@ -64,6 +64,8 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
         return true
     }
 
+    class NullNotNull
+
     /**
      * Удаление элемента из таблицы
      *
@@ -74,9 +76,24 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      * Спецификация: [java.util.Set.remove] (Ctrl+Click по remove)
      *
      * Средняя
+     *
+     * T = O(1) (в худшем случае O(N))
+     * R = O(1)
      */
     override fun remove(element: T): Boolean {
-        TODO("not implemented")
+        val startingIndex = element.startingIndex()
+        var index = startingIndex
+        var current = storage[index]
+        while (current != null && current !is NullNotNull) {
+            if (current == element) {
+                storage[index] = NullNotNull()
+                size--
+                return true
+            }
+            index = (index + 1) % capacity
+            current = storage[index]
+        }
+        return false
     }
 
     /**
@@ -89,7 +106,34 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
      *
      * Средняя (сложная, если поддержан и remove тоже)
      */
-    override fun iterator(): MutableIterator<T> {
-        TODO("not implemented")
+    override fun iterator(): MutableIterator<T> = KtOpenAddressingSetIterator()
+
+    inner class KtOpenAddressingSetIterator : MutableIterator<T> {
+        private var index = -1
+
+        //T = O(s), где s - расстояние между следующими элементами (в худешм случае O(N))
+        //R = O(1)
+        override fun hasNext(): Boolean {
+            for (i in (index + 1)..storage.lastIndex) if (storage[i] != null && storage[i] !is NullNotNull) return true
+            return false
+        }
+
+        //T = O(s), где s - расстояние между следующими элементами (в худешм случае O(N))
+        //R = O(1)
+        override fun next(): T {
+            for (i in (index + 1)..storage.lastIndex) if (storage[i] != null && storage[i] !is NullNotNull) {
+                index = i
+                return storage[i] as T
+            }
+            throw NoSuchElementException()
+        }
+
+        //T = O(1)
+        //R = O(1)
+        override fun remove() {
+            if (index == -1) throw IllegalStateException()
+            remove(storage[index])
+        }
+
     }
 }
