@@ -150,7 +150,7 @@ fun calcPrimesNumber(limit: Int): Int {
     }
 
     var count = 0
-    for (j in 0 until limit) if (allNumbers[j]) count++
+    for (j in 0 until limit - 1) if (allNumbers[j]) count++
 
     return count
 }
