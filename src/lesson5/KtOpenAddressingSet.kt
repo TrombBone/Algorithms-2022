@@ -64,7 +64,7 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
         return true
     }
 
-    class NullNotNull
+    object NullNotNull
 
     /**
      * Удаление элемента из таблицы
@@ -86,7 +86,7 @@ class KtOpenAddressingSet<T : Any>(private val bits: Int) : AbstractMutableSet<T
         var current = storage[index]
         while (current != null && current !is NullNotNull) {
             if (current == element) {
-                storage[index] = NullNotNull()
+                storage[index] = NullNotNull
                 size--
                 return true
             }
