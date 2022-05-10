@@ -73,30 +73,72 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
     override fun iterator(): MutableIterator<String> = KtTrieIterator()
 
     inner class KtTrieIterator : MutableIterator<String> {
+        private var thisNode: Node = root
+        private val stack = Stack<Pair<Int, Node>>()
         private var thisWord: String? = null
-        private val stack = Stack<String>()
 
         init {
-            fillStack(root, "")
+            stack.push(0 to thisNode)
         }
 
-        private fun fillStack(thisNode: Node, word: String) {
-            for (child in thisNode.children)
-                if (child.key != 0.toChar()) fillStack(child.value, word + child.key)
-                else stack.add(word)
+        private fun isLastDeleted(): Boolean {
+            var keys = thisNode.children.keys
+            if (keys.isEmpty()) return false
+            var literal = keys.last()
+            var thisNode = this.thisNode
+            while (literal != 0.toChar()) {
+                thisNode = thisNode.children[literal]!!
+                keys = thisNode.children.keys
+                if (keys.isEmpty()) return false
+                literal = keys.last()
+            }
+            return true
         }
 
-        //T = O(1)
+        //T = O(N), где N - длина последнего (в алфавитном порядке) слова в дереве
         //R = O(1)
-        override fun hasNext(): Boolean = !stack.isEmpty()
+        override fun hasNext(): Boolean = stack.first().first < root.children.size && isLastDeleted()
 
-        //T = O(1)
+        //T = O(N), гду N - это длина слова
         //R = O(1)
         override fun next(): String {
-            if (hasNext()) {
-                thisWord = stack.pop()
-                return thisWord!!
-            } else throw NoSuchElementException()
+            if (!hasNext()) throw NoSuchElementException()
+            var word = ""
+
+            fun goUp() {
+                while (true) {
+                    val thisPair = stack.pop()
+                    thisNode = thisPair.second
+                    if ((thisNode.children.size > 1 && thisPair.first + 1 < thisNode.children.size) || thisNode == root) {
+                        stack.push(Pair(thisPair.first + 1, thisNode))
+                        break
+                    }
+                }
+            }
+
+            while (true) {
+                val keys = thisNode.children.keys.toList()
+                if (keys.isEmpty()) {
+                    goUp()
+                    continue
+                }
+                val key = keys[stack.peek().first]
+                if (key == 0.toChar()) {
+                    stack.pop()
+                    break
+                }
+                thisNode = thisNode.children[key]!!
+                stack.push(0 to thisNode)
+            }
+            for ((literalIndex, node) in stack) word += node.children.keys.toList()[literalIndex]
+            thisWord = word
+
+            // go to intersection point next word
+            val keys = thisNode.children.keys.toList()
+            if (keys.size > 1) stack.push(1 to thisNode)
+            else goUp()
+
+            return word
         }
 
         //T = O(N),
@@ -104,6 +146,10 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
         //где N - длина удаляемого слова
         override fun remove() {
             if (thisWord != null) {
+                if (thisNode.children.keys.toList()[0] == 0.toChar() && stack.peek().first == 1) {
+                    val oldIndex = stack.pop().first
+                    stack.push(Pair(oldIndex - 1, thisNode))
+                }
                 remove(thisWord)
                 thisWord = null
             } else throw IllegalStateException()
